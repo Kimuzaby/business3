@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hill 'N Grill | Restaurante, Café y Bar</title>
+    <link rel="icon" type="image/jpg" href="img/logo.jpg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="#" class="logo-container">
+            <img src="img/logo.jpg" alt="Hill N Grill" class="logo-img">
+            <div class="logo-text-wrap">
+                <span class="logo-tag">Restaurante & Bar</span>
+                <span class="logo-name">Hill 'N Grill</span>
+                <span class="logo-sub">Café y Bar</span>
+            </div>
+        </a>
+        <button class="cart-btn" onclick="toggleCart()">
+            🛒 Mi pedido <span class="cart-badge" id="cart-count">0</span>
+        </button>
+    </nav>
+</header>
+
+<main>
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-badge">⚡ Restaurante · Café · Bar</span>
+            <h1>Hill 'N <span>Grill</span></h1>
+            <p class="hero-tagline">Sabor a la parrilla con vista panorámica. El lugar donde cada visita se convierte en experiencia.</p>
+            <div class="hero-ctas">
+                <a href="#menu" class="btn-primary">🍖 Ver Menú</a>
+                <a href="cotizar/index.html" class="btn-outline">🎉 Cotizar Evento</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats-strip">
+        <div class="stat-item">
+            <div class="stat-num">10+</div>
+            <div class="stat-label">Años de tradición</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">50+</div>
+            <div class="stat-label">Platillos y bebidas</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">Vista</div>
+            <div class="stat-label">Panorámica al aire libre</div>
+        </div>
+    </div>
+
+    <!-- PROMOS CAROUSEL -->
+    <section class="carousel-section">
+        <div class="carousel-header">
+            <span class="section-eyebrow">Ofertas de la casa</span>
+            <h2 class="section-title">Promociones <span>Especiales</span></h2>
+        </div>
+        <div class="carousel-wrapper">
+            <div class="carousel-track" id="carousel-track">
+
+                <div class="promo-card">
+                    <div class="promo-img-wrap">
+                        <img src="img/promo.png" alt="Jueves de Alitas">
+                        <span class="promo-tag">⚡ Jueves</span>
+                    </div>
+                    <div class="promo-body">
+                        <h3 class="promo-title">10 Alitas + 6 Cervezas</h3>
+                        <p class="promo-desc">Todos los jueves. Alitas al gusto + 6 cervezas nacionales bien frías.</p>
+                        <div class="promo-price">$13.00</div>
+                    </div>
+                </div>
+
+                <div class="promo-card">
+                    <div class="promo-img-wrap">
+                        <img src="img/promo_2.jpg" alt="Balde Cerveza">
+                        <span class="promo-tag">🍺 Todos los días</span>
+                    </div>
+                    <div class="promo-body">
+                        <h3 class="promo-title">Balde Cerveza Nacional</h3>
+                        <p class="promo-desc">Pilsener, Golden o Suprema. Propina incluida en el precio.</p>
+                        <div class="promo-price">$9.90</div>
+                    </div>
+                </div>
+
+                <div class="promo-card">
+                    <div class="promo-img-wrap">
+                        <img src="img/parrillada.jpg" alt="Parrillada">
+                        <span class="promo-tag">🔥 Grupal</span>
+                    </div>
+                    <div class="promo-body">
+                        <h3 class="promo-title">Parrillada Completa</h3>
+                        <p class="promo-desc">Perfecta para 3 adultos: carne de res, pechuga, costillitas, chorizo y todos los acompañantes.</p>
+                        <div class="promo-price">$25.00</div>
+                    </div>
+                </div>
+
+                <div class="promo-card">
+                    <div class="promo-img-wrap">
+                        <img src="img/food.png" alt="Michelada">
+                        <span class="promo-tag">🌶 Especial</span>
+                    </div>
+                    <div class="promo-body">
+                        <h3 class="promo-title">Michelada Artesanal</h3>
+                        <p class="promo-desc">Mix michelada de la casa con tu cerveza favorita. La combinación perfecta.</p>
+                        <div class="promo-price">$3.00</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="carousel-controls">
+            <button class="c-btn" onclick="moveCarousel(-1)">←</button>
+            <div class="carousel-dots" id="carousel-dots"></div>
+            <button class="c-btn" onclick="moveCarousel(1)">→</button>
+        </div>
+    </section>
+
+    <!-- EVENTS -->
+    <section class="events-section">
+        <div class="events-content">
+            <div class="events-text">
+                <h2>Tu Evento, <span>Nuestra Parrilla</span></h2>
+                <p>Cumpleaños, bodas, reuniones corporativas o simplemente una noche especial: en Hill 'N Grill te ofrecemos el ambiente perfecto con vista panorámica, cocina a la parrilla y el mejor servicio.</p>
+                <h3>¿Listo para reservar tu fecha?</h3>
+                <a href="cotizar/index.html" class="btn-event">🎉 Cotiza aquí</a>
+            </div>
+            <div class="events-image">
+                <img src="img/boda.jpg" alt="Eventos en Hill N Grill">
+            </div>
+        </div>
+    </section>
+
+    <!-- MENU -->
+    <section class="menu-section" id="menu">
+        <div class="menu-header">
+            <span class="section-eyebrow">Directo del fuego</span>
+            <h2 class="section-title">Nuestro <span>Menú</span></h2>
+            <div class="divider"></div>
+        </div>
+
+        <div class="category-tabs">
+            <button class="tab-btn active" onclick="openTab(event,'tab-carnes')">Carnes</button>
+            <button class="tab-btn" onclick="openTab(event,'tab-boquitas')">Boquitas</button>
+            <button class="tab-btn" onclick="openTab(event,'tab-variado')">Variado</button>
+            <button class="tab-btn" onclick="openTab(event,'tab-infantil')">Menú Infantil</button>
+            <button class="tab-btn" onclick="openTab(event,'tab-bebidas')">Bebidas & Bar</button>
+        </div>
+
+        <div class="menu-wrapper">
+
+            <!-- CARNES -->
+            <div id="tab-carnes" class="menu-tab active">
+                <div class="menu-grid">
+                    <div class="product-card"><img src="img/food.png" alt="Típico" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Típico</span><span class="product-price">$5.25</span></div><p class="product-desc">4 chorizos con casamiento, aguacate, plátanos, queso fresco y 2 tortillas.</p><button class="btn-add" onclick="addToCart('car-1','Típico',5.25)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Pechuga" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Pechuga en Salsa de Loroco</span><span class="product-price">$7.25</span></div><p class="product-desc">6 onz de pechuga bañada en salsa de lorocos, arroz, cebolla curtida, vegetales y 2 tortillas.</p><button class="btn-add" onclick="addToCart('car-2','Pechuga Loroco',7.25)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Costilla" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Costilla</span><span class="product-price">$8.25</span></div><p class="product-desc">1/2 libra de costilla de cerdo, papas fritas, vegetales, tortilla frita y 1 chorizo.</p><button class="btn-add" onclick="addToCart('car-3','Costilla',8.25)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Churrasco" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Churrasco</span><span class="product-price">$10.75</span></div><p class="product-desc">A la parrilla con aguacate, casamiento, plátano, chimol, queso fresco y 2 tortillas.</p><button class="btn-add" onclick="addToCart('car-4','Churrasco',10.75)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Pelibuey" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Pelibuey</span><span class="product-price">$11.00</span></div><p class="product-desc">8 onz de Pelibuey servidas con chimol, casamiento, chorizo, vegetales y 2 tortillas.</p><button class="btn-add" onclick="addToCart('car-5','Pelibuey',11.00)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Mediterráneo" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Mediterráneo</span><span class="product-price">$11.00</span></div><p class="product-desc">4 onz res + 4 onz pechuga, 1 chorizo, arroz, chimol y 2 tortillas o patacones.</p><button class="btn-add" onclick="addToCart('car-6','Mediterráneo',11.00)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Mar y Tierra" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Mar y Tierra</span><span class="product-price">$15.00</span></div><p class="product-desc">2 camarones, 4 onz de la mejor carne, 4 onz pechuga, arroz, vegetales, papa asada y 2 tortillas.</p><button class="btn-add" onclick="addToCart('car-7','Mar y Tierra',15.00)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/parrillada.jpg" alt="Parrillada" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Parrillada (3 personas)</span><span class="product-price">$25.00</span></div><p class="product-desc">Carne res, pechuga, costillitas, chorizo, cebolla caramelizada, papas a la parrilla, queso fresco, casamiento, aguacate y tortillas fritas.</p><button class="btn-add" onclick="addToCart('car-8','Parrillada',25.00)">+ Agregar</button></div></div>
+                </div>
+            </div>
+
+            <!-- BOQUITAS -->
+            <div id="tab-boquitas" class="menu-tab">
+                <div class="menu-grid">
+                    <div class="product-card"><img src="img/food.png" alt="Pescaditas" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Pescaditas</span><span class="product-price">$4.75</span></div><p class="product-desc">Con tortilla frita y ensalada.</p><button class="btn-add" onclick="addToCart('boq-1','Pescaditas',4.75)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="De Res" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Boquita de Res</span><span class="product-price">$6.50</span></div><p class="product-desc">Trocitos de carne de res, chorizo, queso, frijoles y tortilla frita.</p><button class="btn-add" onclick="addToCart('boq-2','Boquita Res',6.50)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Chicharrón" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Chicharrón</span><span class="product-price">$7.25</span></div><p class="product-desc">Chicharrones, chorizo, queso, frijoles y tortilla frita.</p><button class="btn-add" onclick="addToCart('boq-3','Chicharrón',7.25)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Peliboquitas" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Peliboquitas</span><span class="product-price">$8.25</span></div><p class="product-desc">Trocitos de pelibuey, frijoles, queso, chorizo y tortilla frita.</p><button class="btn-add" onclick="addToCart('boq-4','Peliboquitas',8.25)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Costillitas" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Costillitas de Cerdo</span><span class="product-price">$8.50</span></div><p class="product-desc">Tomatada, jalapeño, chorizo, frijoles, queso y tortilla frita.</p><button class="btn-add" onclick="addToCart('boq-5','Costillitas Cerdo',8.50)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Mixtas" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Mixtas</span><span class="product-price">$10.25</span></div><p class="product-desc">Carne, frijoles, pollo, chicharrón, papitas fritas, queso y tortilla frita.</p><button class="btn-add" onclick="addToCart('boq-6','Mixtas',10.25)">+ Agregar</button></div></div>
+                </div>
+            </div>
+
+            <!-- VARIADO -->
+            <div id="tab-variado" class="menu-tab">
+                <div class="menu-grid">
+                    <div class="product-card"><img src="img/food.png" alt="Sopa" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Sopa de Gallina</span><span class="product-price">$6.25</span></div><p class="product-desc">1/4 de gallina asada a las brazas con su sopita especial, aguacate, queso-cuajada y 2 tortillas.</p><button class="btn-add" onclick="addToCart('var-1','Sopa Gallina',6.25)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Tacos" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Orden de Tacos</span><span class="product-price">$6.75</span></div><p class="product-desc">Ricos taquitos de res, pollo o mixtos.</p><button class="btn-add" onclick="addToCart('var-2','Orden de Tacos',6.75)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Coctel" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Cóctel de Camarones</span><span class="product-price">$7.00</span></div><p class="product-desc">Camarones frescos en salsa rosa. Altamente recomendado.</p><button class="btn-add" onclick="addToCart('var-3','Cóctel Camarones',7.00)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Pupusa" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Pupusa F/Q y R</span><span class="product-price">$1.00</span></div><p class="product-desc">Frijoles, queso y revuelta. El manjar de siempre.</p><button class="btn-add" onclick="addToCart('var-4','Pupusa',1.00)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Pupusa Especial" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Pupusa Especialidad</span><span class="product-price">$1.50</span></div><p class="product-desc">Pregunta por la disponibilidad del día.</p><button class="btn-add" onclick="addToCart('var-5','Pupusa Especial',1.50)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Extras" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Extras</span><span class="product-price">$1.50</span></div><p class="product-desc">Tortilla c/frijoles, queso asado, queso frito, chorizo, costilla, caldo de camarón, sopita de gallina, papa al horno, camarones.</p>
+                        <button class="btn-add" onclick="addToCart('ext-1','Extra Tortilla c/Frijoles',1.50)">+ Tortilla c/Frijoles</button>
+                        <button class="btn-add" style="margin-top:5px" onclick="addToCart('ext-2','Extra Papa al Horno',1.50)">+ Papa al Horno</button>
+                    </div></div>
+                </div>
+            </div>
+
+            <!-- INFANTIL -->
+            <div id="tab-infantil" class="menu-tab">
+                <div class="menu-grid">
+                    <div class="product-card"><img src="img/food.png" alt="Papitas" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Papitas Fritas</span><span class="product-price">$2.25</span></div><p class="product-desc">Con queso rayado y ketchup.</p><button class="btn-add" onclick="addToCart('inf-1','Papitas Fritas Infantil',2.25)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Nachitos" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Nachitos</span><span class="product-price">$2.75</span></div><p class="product-desc">Crujientes y bien acompañados.</p><button class="btn-add" onclick="addToCart('inf-2','Nachitos Infantil',2.75)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Hamburguesa Infantil" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Hamburguesa Infantil</span><span class="product-price">$4.00</span></div><p class="product-desc">De res o pollo, con o sin queso cheddar.</p><button class="btn-add" onclick="addToCart('inf-3','Hamburguesa Infantil',4.00)">+ Agregar</button></div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Pizza" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Pizza Infantil</span><span class="product-price">$4.00</span></div><p class="product-desc">Las clásicas: jamón o pepperoni.</p><button class="btn-add" onclick="addToCart('inf-4','Pizza Infantil',4.00)">+ Agregar</button></div></div>
+                </div>
+            </div>
+
+            <!-- BEBIDAS -->
+            <div id="tab-bebidas" class="menu-tab">
+                <div class="menu-grid">
+                    <div class="product-card"><img src="img/food.png" alt="Agua" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Agua / Café / Té</span><span class="product-price">$0.75–$1.00</span></div>
+                        <button class="btn-add" onclick="addToCart('beb-1','Botella de Agua',0.75)">+ Agua $0.75</button>
+                        <button class="btn-add" style="margin-top:5px" onclick="addToCart('beb-2','Café/Té',1.00)">+ Café / Té $1.00</button>
+                    </div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Refrescos" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Sodas & Refrescos</span><span class="product-price">$1.00</span></div><p class="product-desc">Sodas, té helado o jugo de naranja ($2.00).</p>
+                        <button class="btn-add" onclick="addToCart('beb-3','Soda/Refresco',1.00)">+ Soda $1.00</button>
+                        <button class="btn-add" style="margin-top:5px" onclick="addToCart('beb-4','Jugo de Naranja',2.00)">+ Jugo Naranja $2.00</button>
+                    </div></div>
+                    <div class="product-card"><img src="img/food.png" alt="Frozen" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Frozen & Cappuccino Ice</span><span class="product-price">$2.50</span></div><p class="product-desc">Frozen de fruta o café. Limonadas $1.50. Licuados $2.00.</p><button class="btn-add" onclick="addToCart('beb-5','Frozen',2.50)">+ Frozen $2.50</button></div></div>
+                    <div class="product-card"><img src="img/promo_2.jpg" alt="Cervezas" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Cervezas</span><span class="product-price">Desde $1.50</span></div><p class="product-desc">Golden, Pilsener, Suprema $1.50 · Corona, Modelo, Stella Artois $2.00 · Miller, Smirnoff Ice $2.25.</p>
+                        <button class="btn-add" onclick="addToCart('cer-1','Pilsener/Golden/Suprema',1.50)">+ Nacional $1.50</button>
+                        <button class="btn-add" style="margin-top:5px" onclick="addToCart('cer-2','Corona/Modelo',2.00)">+ Importada $2.00</button>
+                    </div></div>
+                    <div class="product-card"><img src="img/promo_2.jpg" alt="Baldes" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Baldes de Cerveza</span><span class="product-price">Desde $8.00</span></div><p class="product-desc">De 6: $8–$10.80 · De 8: $10–$14 · Balde especial 6 cervezas nacionales: $9.90 (propina incluida).</p>
+                        <button class="btn-add" onclick="addToCart('bal-1','Balde 6 Nacionales',9.90)">+ Balde Nacional $9.90</button>
+                    </div></div>
+                    <div class="product-card"><img src="img/promo.png" alt="Jueves Alitas" class="product-img"><div class="product-info"><div class="card-header"><span class="product-title">Jueves de Alitas</span><span class="product-price">$13.00</span></div><p class="product-desc">10 alitas + 6 cervezas nacionales. Solo los jueves.</p><button class="btn-add" onclick="addToCart('prm-1','Jueves Alitas + 6 Cervezas',13.00)">+ Agregar</button></div></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-logo">Hill 'N Grill</div>
+        <div class="footer-sub">Restaurante · Café · Bar</div>
+        <p class="footer-copy">© 2026 <strong>Hill 'N Grill</strong> · El Salvador. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<div id="cart-overlay" class="overlay" onclick="toggleCart()"></div>
+<aside id="cart-sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h2>Tu Pedido</h2>
+        <button class="btn-close" onclick="toggleCart()">✕</button>
+    </div>
+    <div class="sidebar-body">
+        <div id="cart-items" class="cart-items-container"></div>
+        <div id="checkout-form" class="checkout-form">
+            <h3>Datos del Pedido</h3>
+            <label class="form-label" for="client-name">Tu Nombre:</label>
+            <input type="text" id="client-name" class="form-input" placeholder="Ej: Carlos López">
+            <label class="form-label" for="delivery-method">Método:</label>
+            <select id="delivery-method" class="form-input">
+                <option value="">Seleccione...</option>
+                <option value="delivery">Delivery</option>
+                <option value="pickup">Para llevar</option>
+                <option value="mesa">Mesa en restaurante</option>
+            </select>
+            <label class="form-label" for="location-details">Dirección / Notas / Nro de Mesa:</label>
+            <textarea id="location-details" class="form-input" style="min-height:60px" placeholder="Dirección, número de mesa o notas especiales..."></textarea>
+            <label class="form-label" for="payment-method">Método de Pago:</label>
+            <select id="payment-method" class="form-input" style="margin-bottom:0">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Tarjeta">Tarjeta (POS)</option>
+            </select>
+        </div>
+    </div>
+    <div class="cart-footer">
+        <button class="btn-empty" id="btn-empty" onclick="emptyCart()">🗑️ Vaciar carrito</button>
+        <div class="cart-total-row">
+            <span>Total:</span>
+            <span id="cart-total">$0.00</span>
+        </div>
+        <button class="btn-whatsapp" id="btn-whatsapp" onclick="sendWhatsApp()">
+            Confirmar por WhatsApp
+        </button>
+    </div>
+</aside>
+
+<script src="app.js"></script>
+</body>
+</html>
