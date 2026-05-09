@@ -148,26 +148,56 @@ function drop(ev) {
 
 function drag(ev) { ev.dataTransfer.setData('text/plain', ev.currentTarget.dataset.id); }
 
+// ===== CORREGIDO: updateEstado con eliminación visual inmediata =====
 async function updateEstado(pedidoId, nuevoEstado) {
     try {
         if (nuevoEstado === 'cancelado') {
-            // Eliminar físicamente el pedido cancelado
             if (confirm('¿Estás seguro de cancelar este pedido? Se eliminará del sistema.')) {
+                // 1. Eliminar la tarjeta visualmente AHORA MISMO (no esperar al snapshot)
+                const card = document.querySelector(`[data-id="${pedidoId}"]`);
+                if (card) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    card.style.transition = 'all 0.3s ease';
+                    setTimeout(() => card.remove(), 300);
+                }
+                
+                // 2. Eliminar de Firestore
                 await db.collection('pedidos').doc(pedidoId).delete();
+                
+                // 3. Actualizar contadores manualmente (sin esperar al snapshot)
+                actualizarContadoresVisuales();
             }
         } else {
             await db.collection('pedidos').doc(pedidoId).update({ estado: nuevoEstado });
         }
         if (nuevoEstado === 'pendiente') playSound();
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('Error en updateEstado:', e); }
+}
+
+// ===== NUEVO: Actualizar contadores sin esperar al snapshot =====
+function actualizarContadoresVisuales() {
+    const pendientes = document.querySelectorAll('#col-pendiente .order-card').length;
+    const proceso = document.querySelectorAll('#col-proceso .order-card').length;
+    const finalizados = document.querySelectorAll('#col-finalizado .order-card').length;
+    
+    document.getElementById('count-pendiente').textContent = pendientes;
+    document.getElementById('count-proceso').textContent = proceso;
+    document.getElementById('count-finalizado').textContent = finalizados;
 }
 
 async function marcarPagado(pedidoId) {
     try {
         const doc = await db.collection('pedidos').doc(pedidoId).get();
         const pedido = doc.data();
-        await db.collection('pedidos').doc(pedidoId).update({ estado: 'pagado', fechaPago: firebase.firestore.Timestamp.now() });
-        // Mover a colección de ventas para contabilidad
+        
+        // 1. Marcar como pagado
+        await db.collection('pedidos').doc(pedidoId).update({ 
+            estado: 'pagado', 
+            fechaPago: firebase.firestore.Timestamp.now() 
+        });
+        
+        // 2. Mover a colección de ventas
         await db.collection('ventas').add({
             pedidoId,
             mesa: pedido.mesa,
@@ -175,9 +205,27 @@ async function marcarPagado(pedidoId) {
             items: pedido.items,
             fecha: pedido.fecha,
             fechaPago: firebase.firestore.Timestamp.now(),
-            mesero: pedido.mesero
+            mesero: pedido.mesero || 'Mesero'
         });
-    } catch (e) { console.error(e); }
+        
+        // 3. Eliminar tarjeta visualmente AHORA MISMO
+        const card = document.querySelector(`[data-id="${pedidoId}"]`);
+        if (card) {
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            card.style.transition = 'all 0.3s ease';
+            setTimeout(() => {
+                card.remove();
+                actualizarContadoresVisuales();
+            }, 300);
+        }
+        
+        // 4. Actualizar ventas del día
+        calcularVentasDia();
+        
+    } catch (e) { 
+        console.error('Error en marcarPagado:', e); 
+    }
 }
 
 function renderOrders(snapshot) {
@@ -195,7 +243,7 @@ function renderOrders(snapshot) {
         const pedido = doc.data();
         const id = doc.id;
         
-        // Solo mostrar pedidos no pagados ni cancelados
+        // Solo mostrar pedidos activos
         if (pedido.estado === 'pagado' || pedido.estado === 'cancelado') return;
         
         let colId;
@@ -233,11 +281,9 @@ function renderOrders(snapshot) {
     document.getElementById('count-proceso').textContent = counts['col-proceso'];
     document.getElementById('count-finalizado').textContent = counts['col-finalizado'];
     
-    // ===== NUEVO: Calcular ventas del día desde colección 'ventas' =====
     calcularVentasDia();
 }
 
-// ===== NUEVA FUNCIÓN para ventas del día =====
 async function calcularVentasDia() {
     const hoy = new Date();
     const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
@@ -266,7 +312,7 @@ db.collection('pedidos')
     .onSnapshot(snapshot => {
         renderOrders(snapshot);
     }, error => {
-        console.error('Error:', error);
+        console.error('Error en listener:', error);
     });
 </script>
 </body>
