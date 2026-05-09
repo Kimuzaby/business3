@@ -98,7 +98,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-// ⚠️ MISMA CONFIGURACIÓN DE FIREBASE
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDKmVDbSZcC6JwRG2eJkzPjf42aFVYdWg4",
   authDomain: "hill-n-grill.firebaseapp.com",
@@ -114,14 +114,16 @@ let soundEnabled = true;
 
 function playSound() {
     if (soundEnabled) {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.frequency.setValueAtTime(1000, ctx.currentTime + 0.1);
-        osc.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.2);
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(800, ctx.currentTime);
+            osc.frequency.setValueAtTime(1000, ctx.currentTime + 0.1);
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
+        } catch(e) {}
     }
 }
 
@@ -130,54 +132,80 @@ function toggleSound() {
     document.querySelector('.sound-toggle').textContent = soundEnabled ? '🔊 Sonido: ON' : '🔇 Sonido: OFF';
 }
 
-function allowDrop(ev) { ev.preventDefault(); }
+function allowDrop(ev) { 
+    ev.preventDefault(); 
+}
 
 function drop(ev) {
     ev.preventDefault();
+    // Obtener el ID de la tarjeta que se está arrastrando
     const pedidoId = ev.dataTransfer.getData('text/plain');
-    const newEstado = ev.target.closest('.column-body').id;
+    
+    // Validar que el ID no esté vacío
+    if (!pedidoId || pedidoId === 'undefined' || pedidoId === 'null') {
+        console.error('❌ Error: pedidoId vacío al hacer drop');
+        return;
+    }
+    
+    // Encontrar la columna destino
+    const columnBody = ev.target.closest('.column-body');
+    if (!columnBody) {
+        console.error('❌ Error: no se encontró la columna destino');
+        return;
+    }
+    
+    const newEstado = columnBody.id;
     const estadoMap = {
         'col-pendiente': 'pendiente',
         'col-proceso': 'en_proceso',
         'col-finalizado': 'finalizado'
     };
+    
     if (estadoMap[newEstado]) {
+        console.log('✅ Moviendo pedido', pedidoId, 'a estado:', estadoMap[newEstado]);
         updateEstado(pedidoId, estadoMap[newEstado]);
     }
 }
 
-function drag(ev) { ev.dataTransfer.setData('text/plain', ev.currentTarget.dataset.id); }
+function drag(ev) {
+    // Asegurarse de que el data-id existe
+    const id = ev.currentTarget.dataset.id;
+    if (!id) {
+        console.error('❌ Error: data-id no encontrado en la tarjeta');
+        return;
+    }
+    ev.dataTransfer.setData('text/plain', id);
+    ev.dataTransfer.effectAllowed = 'move';
+}
 
-// ===== CORREGIDO: updateEstado con solución REAL =====
 async function updateEstado(pedidoId, nuevoEstado) {
+    // Validar que pedidoId no esté vacío
+    if (!pedidoId || pedidoId === 'undefined' || pedidoId === 'null') {
+        console.error('❌ Error: pedidoId vacío en updateEstado');
+        return;
+    }
+    
+    console.log('🔄 updateEstado:', { pedidoId, nuevoEstado });
+    
     try {
         if (nuevoEstado === 'cancelado') {
             if (!confirm('¿Estás seguro de cancelar este pedido? Se eliminará del sistema.')) {
-                return; // Si cancela, no hacer nada
+                return;
             }
-            
-            // 1. PRIMERO actualizar a 'cancelado' (esto dispara el onSnapshot)
+            // Actualizar estado a 'cancelado' - el onSnapshot lo sacará de la vista
             await db.collection('pedidos').doc(pedidoId).update({ estado: 'cancelado' });
-            
-            // 2. El onSnapshot se dispara automáticamente y renderiza de nuevo,
-            //    pero como ahora el estado es 'cancelado', la tarjeta NO se pinta
-            //    porque tenemos: if (pedido.estado === 'pagado' || pedido.estado === 'cancelado') return;
-            
-            // 3. Luego eliminar el documento (opcional, para limpiar la BD)
-            //    Comentamos esta línea si queremos mantener historial
-            // await db.collection('pedidos').doc(pedidoId).delete();
-            
+            console.log('✅ Pedido cancelado:', pedidoId);
         } else {
             await db.collection('pedidos').doc(pedidoId).update({ estado: nuevoEstado });
+            console.log('✅ Pedido actualizado:', pedidoId, '→', nuevoEstado);
         }
         if (nuevoEstado === 'pendiente') playSound();
     } catch (e) { 
-        console.error('Error en updateEstado:', e); 
-        alert('Error al actualizar el pedido. Revisa la consola.');
+        console.error('❌ Error en updateEstado:', e); 
+        alert('Error al actualizar el pedido: ' + e.message);
     }
 }
 
-// ===== NUEVO: Actualizar contadores sin esperar al snapshot =====
 function actualizarContadoresVisuales() {
     const pendientes = document.querySelectorAll('#col-pendiente .order-card').length;
     const proceso = document.querySelectorAll('#col-proceso .order-card').length;
@@ -189,17 +217,27 @@ function actualizarContadoresVisuales() {
 }
 
 async function marcarPagado(pedidoId) {
+    if (!pedidoId) {
+        console.error('❌ Error: pedidoId vacío en marcarPagado');
+        return;
+    }
+    
     try {
         const doc = await db.collection('pedidos').doc(pedidoId).get();
+        if (!doc.exists) {
+            console.error('❌ El pedido ya no existe');
+            return;
+        }
+        
         const pedido = doc.data();
         
-        // 1. Marcar como pagado
+        // Marcar como pagado
         await db.collection('pedidos').doc(pedidoId).update({ 
             estado: 'pagado', 
             fechaPago: firebase.firestore.Timestamp.now() 
         });
         
-        // 2. Mover a colección de ventas
+        // Mover a colección de ventas
         await db.collection('ventas').add({
             pedidoId,
             mesa: pedido.mesa,
@@ -210,7 +248,9 @@ async function marcarPagado(pedidoId) {
             mesero: pedido.mesero || 'Mesero'
         });
         
-        // 3. Eliminar tarjeta visualmente AHORA MISMO
+        console.log('✅ Pedido pagado y registrado en ventas:', pedidoId);
+        
+        // Eliminar tarjeta visualmente
         const card = document.querySelector(`[data-id="${pedidoId}"]`);
         if (card) {
             card.style.opacity = '0';
@@ -222,11 +262,10 @@ async function marcarPagado(pedidoId) {
             }, 300);
         }
         
-        // 4. Actualizar ventas del día
         calcularVentasDia();
         
     } catch (e) { 
-        console.error('Error en marcarPagado:', e); 
+        console.error('❌ Error en marcarPagado:', e); 
     }
 }
 
@@ -245,7 +284,7 @@ function renderOrders(snapshot) {
         const pedido = doc.data();
         const id = doc.id;
         
-        // Solo mostrar pedidos activos
+        // Saltar pedidos no activos
         if (pedido.estado === 'pagado' || pedido.estado === 'cancelado') return;
         
         let colId;
@@ -258,7 +297,12 @@ function renderOrders(snapshot) {
         card.draggable = true;
         card.dataset.id = id;
         card.addEventListener('dragstart', drag);
-        card.addEventListener('click', function() { this.classList.toggle('expanded'); });
+        card.addEventListener('click', function(e) {
+            // Solo expandir si no se hizo clic en un botón
+            if (e.target.tagName !== 'BUTTON') {
+                this.classList.toggle('expanded');
+            }
+        });
         
         const itemsText = pedido.items.map(i => `${i.quantity}x ${i.name}`).join('<br>');
         
@@ -268,15 +312,33 @@ function renderOrders(snapshot) {
             <div class="items">${itemsText}</div>
             <div class="total">$${pedido.total.toFixed(2)}</div>
             <div class="actions">
-                ${pedido.estado === 'pendiente' ? '<button class="btn-action btn-preparar" onclick="event.stopPropagation();updateEstado(\''+id+'\',\'en_proceso\')">🔥 Preparar</button>' : ''}
-                ${pedido.estado === 'en_proceso' ? '<button class="btn-action btn-finalizar" onclick="event.stopPropagation();updateEstado(\''+id+'\',\'finalizado\')">✅ Finalizar</button>' : ''}
-                ${pedido.estado === 'finalizado' ? '<button class="btn-action btn-pagar" onclick="event.stopPropagation();marcarPagado(\''+id+'\')">💵 Marcar Pagado</button>' : ''}
-                <button class="btn-action btn-cancelar" onclick="event.stopPropagation();updateEstado(\''+id+'\',\'cancelado\')">❌ Cancelar</button>
+                ${pedido.estado === 'pendiente' ? `<button class="btn-action btn-preparar" data-accion="preparar" data-id="${id}">🔥 Preparar</button>` : ''}
+                ${pedido.estado === 'en_proceso' ? `<button class="btn-action btn-finalizar" data-accion="finalizar" data-id="${id}">✅ Finalizar</button>` : ''}
+                ${pedido.estado === 'finalizado' ? `<button class="btn-action btn-pagar" data-accion="pagar" data-id="${id}">💵 Marcar Pagado</button>` : ''}
+                <button class="btn-action btn-cancelar" data-accion="cancelar" data-id="${id}">❌ Cancelar</button>
             </div>
         `;
         
         cols[colId].appendChild(card);
         counts[colId]++;
+    });
+    
+    // Agregar event listeners a los botones DESPUÉS de crear las tarjetas
+    document.querySelectorAll('.btn-action').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            const accion = this.dataset.accion;
+            const id = this.dataset.id;
+            
+            console.log('🖱️ Botón clickeado:', accion, id);
+            
+            if (accion === 'preparar') updateEstado(id, 'en_proceso');
+            else if (accion === 'finalizar') updateEstado(id, 'finalizado');
+            else if (accion === 'pagar') marcarPagado(id);
+            else if (accion === 'cancelar') updateEstado(id, 'cancelado');
+        });
     });
     
     document.getElementById('count-pendiente').textContent = counts['col-pendiente'];
@@ -312,10 +374,13 @@ async function calcularVentasDia() {
 db.collection('pedidos')
     .where('estado', 'in', ['pendiente', 'en_proceso', 'finalizado'])
     .onSnapshot(snapshot => {
+        console.log('📡 Snapshot recibido:', snapshot.size, 'documentos');
         renderOrders(snapshot);
     }, error => {
-        console.error('Error en listener:', error);
+        console.error('❌ Error en listener:', error);
     });
+
+console.log('🍳 Cocina inicializada');
 </script>
 </body>
 </html>
