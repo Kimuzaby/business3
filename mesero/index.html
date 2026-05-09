@@ -263,7 +263,7 @@ async function sendToKitchen() {
         items: cartMesero.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, subtotal: i.price * i.quantity })),
         total: parseFloat(total.toFixed(2)),
         estado: 'pendiente',
-        mesero: 'Mesero', // Puedes agregar selector de mesero
+        mesero: 'Mesero',
         fecha: firebase.firestore.Timestamp.now(),
         fechaTexto: new Date().toLocaleString()
     };
@@ -272,6 +272,14 @@ async function sendToKitchen() {
         await db.collection('pedidos').add(pedido);
         alert('✅ ¡Pedido enviado a cocina!');
         cartMesero = [];
+        
+        // ============ NUEVO: Reiniciar campos ============
+        document.getElementById('mesa-numero').value = '';
+        document.getElementById('mesa-nombre').value = '';
+        document.getElementById('cart-mesa-display').textContent = '—';
+        document.getElementById('cart-cliente-display').textContent = 'Sin nombre';
+        // ================================================
+        
         renderCart();
     } catch (error) {
         console.error('Error:', error);
@@ -280,9 +288,10 @@ async function sendToKitchen() {
 }
 
 // Inicializar
-document.getElementById('mesa-numero').addEventListener('change', () => {
-    mesaActual = parseInt(document.getElementById('mesa-numero').value) || 1;
-    document.getElementById('cart-mesa-display').textContent = mesaActual;
+document.getElementById('mesa-numero').addEventListener('input', () => {
+    const val = document.getElementById('mesa-numero').value;
+    mesaActual = val ? parseInt(val) : null;
+    document.getElementById('cart-mesa-display').textContent = val || '—';
 });
 document.getElementById('mesa-nombre').addEventListener('input', () => {
     document.getElementById('cart-cliente-display').textContent = document.getElementById('mesa-nombre').value || 'Sin nombre';

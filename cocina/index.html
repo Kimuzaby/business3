@@ -150,7 +150,14 @@ function drag(ev) { ev.dataTransfer.setData('text/plain', ev.currentTarget.datas
 
 async function updateEstado(pedidoId, nuevoEstado) {
     try {
-        await db.collection('pedidos').doc(pedidoId).update({ estado: nuevoEstado });
+        if (nuevoEstado === 'cancelado') {
+            // Eliminar físicamente el pedido cancelado
+            if (confirm('¿Estás seguro de cancelar este pedido? Se eliminará del sistema.')) {
+                await db.collection('pedidos').doc(pedidoId).delete();
+            }
+        } else {
+            await db.collection('pedidos').doc(pedidoId).update({ estado: nuevoEstado });
+        }
         if (nuevoEstado === 'pendiente') playSound();
     } catch (e) { console.error(e); }
 }
@@ -180,7 +187,6 @@ function renderOrders(snapshot) {
         'col-finalizado': document.getElementById('col-finalizado')
     };
     const counts = { 'col-pendiente': 0, 'col-proceso': 0, 'col-finalizado': 0 };
-    let ventasDia = 0;
     
     // Limpiar columnas
     Object.values(cols).forEach(c => c.innerHTML = '');
@@ -189,6 +195,7 @@ function renderOrders(snapshot) {
         const pedido = doc.data();
         const id = doc.id;
         
+        // Solo mostrar pedidos no pagados ni cancelados
         if (pedido.estado === 'pagado' || pedido.estado === 'cancelado') return;
         
         let colId;
@@ -220,16 +227,37 @@ function renderOrders(snapshot) {
         
         cols[colId].appendChild(card);
         counts[colId]++;
-        
-        if (pedido.estado === 'finalizado' || pedido.estado === 'en_proceso') {
-            ventasDia += pedido.total;
-        }
     });
     
     document.getElementById('count-pendiente').textContent = counts['col-pendiente'];
     document.getElementById('count-proceso').textContent = counts['col-proceso'];
     document.getElementById('count-finalizado').textContent = counts['col-finalizado'];
-    document.getElementById('ventas-dia').textContent = `$${ventasDia.toFixed(2)}`;
+    
+    // ===== NUEVO: Calcular ventas del día desde colección 'ventas' =====
+    calcularVentasDia();
+}
+
+// ===== NUEVA FUNCIÓN para ventas del día =====
+async function calcularVentasDia() {
+    const hoy = new Date();
+    const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    const finDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59);
+    
+    try {
+        const snapshot = await db.collection('ventas')
+            .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
+            .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(finDia))
+            .get();
+        
+        let total = 0;
+        snapshot.forEach(doc => {
+            total += doc.data().total || 0;
+        });
+        
+        document.getElementById('ventas-dia').textContent = `$${total.toFixed(2)}`;
+    } catch (e) {
+        console.error('Error al calcular ventas:', e);
+    }
 }
 
 // Escuchar cambios en tiempo real
