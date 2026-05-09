@@ -24,7 +24,7 @@
         .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
         .card h2 { color: var(--amber); margin-bottom: 15px; font-size: 1.2rem; }
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        th { text-align: left; padding: 10px; border-bottom: 2px solid var(--border); color: var(--green-light); font-size: 0.8rem; text-transform: uppercase; }
+        th { text-align: left; padding: 10px; border-bottom: 2px solid var(--border); color: var(--green); font-size: 0.8rem; text-transform: uppercase; }
         td { padding: 10px; border-bottom: 1px solid var(--border); }
         .amount { color: var(--amber); font-weight: 700; }
         .amount.negative { color: #ff5252; }
@@ -77,33 +77,33 @@
         <div class="summary-card"><div class="label">Activos Fijos</div><div class="value amber" id="sum-activos">$0.00</div></div>
         <div class="summary-card"><div class="label">Pedidos Hoy</div><div class="value" id="sum-pedidos-hoy">0</div></div>
     </div>
-   <div class="card"><h2>Últimas 10 Ventas (Histórico)</h2><div id="ultimas-ventas">Cargando...</div></div>
+    <div class="card"><h2>Últimas 10 Ventas (Histórico)</h2><div id="ultimas-ventas">Cargando...</div></div>
 
-<!-- ===== NUEVO: Gestión de Ventas del Día ===== -->
-<div class="card" style="border: 2px solid var(--amber);">
-    <h2 style="display:flex;justify-content:space-between;align-items:center;">
-        <span>🔧 Gestión de Ventas del Día</span>
-        <span style="font-size:0.85rem;color:var(--text-muted);">Modo Pruebas / Admin</span>
-    </h2>
-    <div class="summary-grid" style="margin-bottom:15px;">
-        <div class="summary-card" style="border:1px solid var(--amber);">
-            <div class="label">Ventas Registradas Hoy</div>
-            <div class="value green" id="sum-ventas-hoy-gestion">$0.00</div>
+    <!-- ===== GESTIÓN DE VENTAS DEL DÍA ===== -->
+    <div class="card" style="border: 2px solid var(--amber);">
+        <h2 style="display:flex;justify-content:space-between;align-items:center;">
+            <span>🔧 Gestión de Ventas del Día</span>
+            <span style="font-size:0.85rem;color:var(--text-muted);">Modo Pruebas / Admin</span>
+        </h2>
+        <div class="summary-grid" style="margin-bottom:15px;">
+            <div class="summary-card" style="border:1px solid var(--amber);">
+                <div class="label">Ventas Registradas Hoy</div>
+                <div class="value green" id="sum-ventas-hoy-gestion">$0.00</div>
+            </div>
+            <div class="summary-card" style="border:1px solid var(--amber);">
+                <div class="label">Pedidos Hoy</div>
+                <div class="value" id="sum-pedidos-hoy-gestion">0</div>
+            </div>
         </div>
-        <div class="summary-card" style="border:1px solid var(--amber);">
-            <div class="label">Pedidos Hoy</div>
-            <div class="value" id="sum-pedidos-hoy-gestion">0</div>
+        <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-blue" onclick="cargarVentasHoy()">🔄 Refrescar Lista</button>
+            <button class="btn btn-red" onclick="eliminarTodasVentasHoy()">⚠️ Eliminar TODAS las Ventas de Hoy</button>
         </div>
+        <div id="ventas-hoy-lista" style="overflow-x:auto;">
+            <p style="color:var(--text-muted);text-align:center;padding:20px;">Haz clic en "Refrescar Lista" para cargar las ventas...</p>
+        </div>
+        <p style="color:var(--text-muted);font-size:0.75rem;margin-top:10px;">⚠️ Esta sección es para pruebas y ajustes. Las eliminaciones son permanentes.</p>
     </div>
-    <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-blue" onclick="cargarVentasHoy()">🔄 Refrescar Lista</button>
-        <button class="btn btn-red" onclick="eliminarTodasVentasHoy()">⚠️ Eliminar TODAS las Ventas de Hoy</button>
-    </div>
-    <div id="ventas-hoy-lista" style="overflow-x:auto;">
-        <p style="color:var(--text-muted);text-align:center;padding:20px;">Haz clic en "Refrescar Lista" para cargar las ventas...</p>
-    </div>
-    <p style="color:var(--text-muted);font-size:0.75rem;margin-top:10px;">⚠️ Esta sección es para pruebas y ajustes. Las eliminaciones son permanentes.</p>
-</div>
 </div>
 
 <!-- ==================== INVENTARIO ==================== -->
@@ -112,7 +112,7 @@
         <h2>➕ Agregar Ítem al Inventario</h2>
         <form id="form-inventario" onsubmit="addInventario(event)">
             <div class="form-row">
-                <div class="form-group"><label>Nombre</label><input type="text" id="inv-nombre" required></div>
+                <div class="form-group"><label>Nombre del Producto</label><input type="text" id="inv-nombre" required></div>
                 <div class="form-group"><label>Categoría</label><select id="inv-categoria"><option>Insumos</option><option>Bebidas</option><option>Carnes</option><option>Lácteos</option><option>Verduras</option><option>Otros</option></select></div>
             </div>
             <div class="form-row">
@@ -200,7 +200,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-// ⚠️ REEMPLAZA CON TU CONFIGURACIÓN REAL
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDKmVDbSZcC6JwRG2eJkzPjf42aFVYdWg4",
   authDomain: "hill-n-grill.firebaseapp.com",
@@ -213,18 +213,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Variables globales para el reporte actual
+// Variables globales
 let reporteActual = { tipo: 'diario', datos: [] };
+let ventasHoyData = [];
 
+// ==================== NAVEGACIÓN ====================
 function showSection(name) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     document.getElementById('section-' + name).classList.add('active');
     event.target.classList.add('active');
-    if (name === 'dashboard') {
-        cargarDashboard();
-        // NO cargar ventas hoy automáticamente, el usuario decide
-    }
+    if (name === 'dashboard') cargarDashboard();
 }
 
 // ==================== INVENTARIO ====================
@@ -242,7 +241,7 @@ async function addInventario(e) {
     await db.collection('inventario').add(item);
     document.getElementById('form-inventario').reset();
     cargarInventario();
-    alert('✅ Ítem agregado');
+    alert('✅ Ítem agregado al inventario');
 }
 
 async function cargarInventario() {
@@ -252,9 +251,13 @@ async function cargarInventario() {
     snapshot.forEach(doc => {
         const d = doc.data();
         total += d.costoTotal || 0;
-        html += `<tr><td>${d.nombre}</td><td>${d.categoria}</td><td>${d.cantidad}</td><td>${d.unidad}</td><td class="amount">$${d.costoUnitario?.toFixed(2)}</td><td class="amount">$${d.costoTotal?.toFixed(2)}</td><td><button class="btn btn-red" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteDoc('inventario','${doc.id}')">🗑️</button></td></tr>`;
+        html += `<tr>
+            <td>${d.nombre}</td><td>${d.categoria}</td><td>${d.cantidad}</td><td>${d.unidad}</td>
+            <td class="amount">$${d.costoUnitario?.toFixed(2)}</td><td class="amount">$${d.costoTotal?.toFixed(2)}</td>
+            <td><button class="btn btn-red" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteDoc('inventario','${doc.id}')">🗑️</button></td>
+        </tr>`;
     });
-    html += `<tr style="font-weight:700;"><td colspan="5">VALOR TOTAL</td><td class="amount">$${total.toFixed(2)}</td><td></td></tr></table>`;
+    html += `<tr style="font-weight:700;"><td colspan="5">VALOR TOTAL DEL INVENTARIO</td><td class="amount">$${total.toFixed(2)}</td><td></td></tr></table>`;
     document.getElementById('tabla-inventario').innerHTML = html;
     document.getElementById('sum-inventario').textContent = `$${total.toFixed(2)}`;
 }
@@ -276,19 +279,24 @@ async function addActivo(e) {
     await db.collection('activos_fijos').add(activo);
     document.getElementById('form-activo').reset();
     cargarActivos();
-    alert('✅ Activo registrado');
+    alert('✅ Activo fijo registrado');
 }
 
 async function cargarActivos() {
     const snapshot = await db.collection('activos_fijos').get();
     let total = 0;
-    let html = '<table><tr><th>Activo</th><th>Valor Compra</th><th>Fecha</th><th>Vida Útil</th><th>Deprec. Mensual</th><th>Valor Actual</th><th>Acción</th></tr>';
+    let html = '<table><tr><th>Activo</th><th>Valor Compra</th><th>Fecha Compra</th><th>Vida Útil</th><th>Deprec. Mensual</th><th>Valor Actual</th><th>Acción</th></tr>';
     snapshot.forEach(doc => {
         const d = doc.data();
         total += d.valorActual || 0;
-        html += `<tr><td>${d.nombre}</td><td class="amount">$${d.valorCompra?.toFixed(2)}</td><td>${d.fechaCompra}</td><td>${d.vidaUtil} años</td><td class="amount">$${d.depreciacionMensual?.toFixed(2)}</td><td class="amount">$${d.valorActual?.toFixed(2)}</td><td><button class="btn btn-red" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteDoc('activos_fijos','${doc.id}')">🗑️</button></td></tr>`;
+        html += `<tr>
+            <td>${d.nombre}</td><td class="amount">$${d.valorCompra?.toFixed(2)}</td><td>${d.fechaCompra}</td>
+            <td>${d.vidaUtil} años</td><td class="amount">$${d.depreciacionMensual?.toFixed(2)}</td>
+            <td class="amount">$${d.valorActual?.toFixed(2)}</td>
+            <td><button class="btn btn-red" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteDoc('activos_fijos','${doc.id}')">🗑️</button></td>
+        </tr>`;
     });
-    html += `<tr style="font-weight:700;"><td colspan="5">VALOR TOTAL</td><td class="amount">$${total.toFixed(2)}</td><td></td></tr></table>`;
+    html += `<tr style="font-weight:700;"><td colspan="5">VALOR TOTAL ACTIVOS</td><td class="amount">$${total.toFixed(2)}</td><td></td></tr></table>`;
     document.getElementById('tabla-activos').innerHTML = html;
     document.getElementById('sum-activos').textContent = `$${total.toFixed(2)}`;
 }
@@ -330,20 +338,141 @@ async function calcularEstadoResultados() {
         </table>`;
 }
 
+// ==================== GESTIÓN DE VENTAS DEL DÍA ====================
+async function cargarVentasHoy() {
+    const hoy = new Date();
+    const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    const finDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59);
+    
+    try {
+        const snapshot = await db.collection('ventas')
+            .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
+            .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(finDia))
+            .orderBy('fechaPago', 'desc')
+            .get();
+        
+        ventasHoyData = [];
+        let total = 0;
+        
+        snapshot.forEach(doc => {
+            const v = doc.data();
+            ventasHoyData.push({
+                id: doc.id,
+                fecha: v.fechaPago?.toDate().toLocaleString() || '-',
+                mesa: v.mesa || '-',
+                mesero: v.mesero || '-',
+                items: v.items?.map(i => `${i.quantity}x ${i.name}`).join('; ') || '-',
+                total: v.total || 0
+            });
+            total += v.total || 0;
+        });
+        
+        renderVentasHoy(total);
+    } catch (error) {
+        console.error('Error al cargar ventas:', error);
+        document.getElementById('ventas-hoy-lista').innerHTML = '<p style="color:#ff5252;">Error al cargar ventas. Revisa la consola.</p>';
+    }
+}
+
+function renderVentasHoy(total) {
+    const container = document.getElementById('ventas-hoy-lista');
+    
+    if (ventasHoyData.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px;">No hay ventas registradas hoy</p>';
+    } else {
+        let html = '<table><tr><th>Fecha/Hora</th><th>Mesa</th><th>Mesero</th><th>Items</th><th>Total</th><th>Acción</th></tr>';
+        ventasHoyData.forEach((v, index) => {
+            html += `
+                <tr>
+                    <td>${v.fecha}</td>
+                    <td>Mesa ${v.mesa}</td>
+                    <td>${v.mesero}</td>
+                    <td style="font-size:0.8rem;">${v.items}</td>
+                    <td class="amount">$${v.total.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-red" style="padding:4px 10px;font-size:0.75rem;" onclick="eliminarVenta('${v.id}', ${index})">🗑️ Eliminar</button>
+                    </td>
+                </tr>`;
+        });
+        html += `<tr style="font-weight:700;font-size:1.1rem;background:var(--surface);">
+            <td colspan="4">TOTAL DEL DÍA</td>
+            <td class="amount">$${total.toFixed(2)}</td>
+            <td></td>
+        </tr></table>`;
+        container.innerHTML = html;
+    }
+    
+    document.getElementById('sum-ventas-hoy-gestion').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('sum-pedidos-hoy-gestion').textContent = ventasHoyData.length;
+}
+
+async function eliminarVenta(id, index) {
+    if (!confirm(`¿Eliminar esta venta?\n\nMesa: ${ventasHoyData[index].mesa}\nTotal: $${ventasHoyData[index].total.toFixed(2)}\n\nEsta acción NO se puede deshacer.`)) {
+        return;
+    }
+    
+    try {
+        await db.collection('ventas').doc(id).delete();
+        ventasHoyData.splice(index, 1);
+        const nuevoTotal = ventasHoyData.reduce((sum, v) => sum + v.total, 0);
+        renderVentasHoy(nuevoTotal);
+        
+        if (document.getElementById('section-dashboard').classList.contains('active')) {
+            cargarDashboard();
+        }
+    } catch (error) {
+        console.error('Error al eliminar:', error);
+        alert('❌ Error al eliminar la venta.');
+    }
+}
+
+async function eliminarTodasVentasHoy() {
+    if (ventasHoyData.length === 0) {
+        alert('No hay ventas para eliminar hoy. Haz clic en "Refrescar Lista" primero.');
+        return;
+    }
+    
+    if (!confirm(`⚠️ ¿Eliminar TODAS las ventas de hoy?\n\nSe eliminarán ${ventasHoyData.length} registros.\nTotal: $${ventasHoyData.reduce((s,v) => s + v.total, 0).toFixed(2)}\n\nEsta acción NO se puede deshacer.`)) {
+        return;
+    }
+    
+    if (!confirm('¿ESTÁS COMPLETAMENTE SEGURO? Esta acción es irreversible.')) {
+        return;
+    }
+    
+    try {
+        const batch = db.batch();
+        ventasHoyData.forEach(v => {
+            batch.delete(db.collection('ventas').doc(v.id));
+        });
+        await batch.commit();
+        
+        ventasHoyData = [];
+        renderVentasHoy(0);
+        
+        if (document.getElementById('section-dashboard').classList.contains('active')) {
+            cargarDashboard();
+        }
+        
+        alert('✅ Todas las ventas de hoy han sido eliminadas.');
+    } catch (error) {
+        console.error('Error al eliminar:', error);
+        alert('❌ Error al eliminar las ventas.');
+    }
+}
+
 // ==================== REPORTES Y EXPORTACIÓN ====================
 function setReportType(tipo, btn) {
     reporteActual.tipo = tipo;
     document.querySelectorAll('.report-type-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     
-    // Mostrar/ocultar filtros según tipo
     document.getElementById('filter-fecha-unica').style.display = (tipo === 'diario') ? 'block' : 'none';
     document.getElementById('filter-mes').style.display = (tipo === 'mensual') ? 'block' : 'none';
     document.getElementById('filter-anio').style.display = (tipo === 'semanal' || tipo === 'mensual') ? 'block' : 'none';
     document.getElementById('filter-desde').style.display = (tipo === 'personalizado') ? 'block' : 'none';
     document.getElementById('filter-hasta').style.display = (tipo === 'personalizado') ? 'block' : 'none';
     
-    // Setear valores por defecto
     const hoy = new Date();
     document.getElementById('rep-fecha').valueAsDate = hoy;
     document.getElementById('rep-mes').value = hoy.getMonth();
@@ -400,7 +529,6 @@ async function generarReporte() {
         total += v.total || 0;
     });
     
-    // Mostrar resumen
     document.getElementById('reporte-resumen').innerHTML = `
         <div class="summary-grid" style="margin-bottom:0;">
             <div class="summary-card"><div class="label">Total Ventas</div><div class="value green">$${total.toFixed(2)}</div></div>
@@ -409,7 +537,6 @@ async function generarReporte() {
             <div class="summary-card"><div class="label">Período</div><div class="value" style="font-size:1rem;">${inicio.toLocaleDateString()} → ${fin.toLocaleDateString()}</div></div>
         </div>`;
     
-    // Tabla de detalle
     let html = '<table><tr><th>Fecha</th><th>Mesa</th><th>Items</th><th>Total</th></tr>';
     reporteActual.datos.forEach(d => {
         html += `<tr><td>${d.fecha}</td><td>Mesa ${d.mesa}</td><td style="font-size:0.8rem;">${d.items}</td><td class="amount">$${d.total.toFixed(2)}</td></tr>`;
@@ -439,7 +566,7 @@ function imprimirReporte() {
     const contenido = document.getElementById('reporte-resumen').innerHTML + document.getElementById('reporte-contenido').innerHTML;
     const ventana = window.open('', '', 'width=900,height=700');
     ventana.document.write('<html><head><title>Reporte Hill N Grill</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{padding:8px;border:1px solid #ddd;text-align:left;}th{background:#4A7C3F;color:white;}.amount{color:#D4A017;font-weight:700;}</style></head><body>');
-    ventana.document.write('<h1>Hill N Grill - Reporte</h1>');
+    ventana.document.write('<h1>🏔️ Hill N Grill - Reporte</h1>');
     ventana.document.write(contenido);
     ventana.document.write('</body></html>');
     ventana.document.close();
@@ -454,6 +581,7 @@ async function cargarDashboard() {
     const inicioSemana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - hoy.getDay());
     const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
     
+    // Ventas del día
     const ventasDiaSnap = await db.collection('ventas')
         .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
         .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(finDia))
@@ -461,18 +589,21 @@ async function cargarDashboard() {
     let ventasDia = 0;
     ventasDiaSnap.forEach(d => ventasDia += d.data().total || 0);
     
+    // Ventas de la semana
     const ventasSemanaSnap = await db.collection('ventas')
         .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioSemana))
         .get();
     let ventasSemana = 0;
     ventasSemanaSnap.forEach(d => ventasSemana += d.data().total || 0);
     
+    // Ventas del mes
     const ventasMesSnap = await db.collection('ventas')
         .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioMes))
         .get();
     let ventasMes = 0;
     ventasMesSnap.forEach(d => ventasMes += d.data().total || 0);
     
+    // Últimas 10 ventas
     const ultimasSnap = await db.collection('ventas').orderBy('fechaPago', 'desc').limit(10).get();
     let html = '<table><tr><th>Fecha</th><th>Mesa</th><th>Items</th><th>Total</th></tr>';
     ultimasSnap.forEach(d => {
@@ -488,146 +619,21 @@ async function cargarDashboard() {
     document.getElementById('sum-pedidos-hoy').textContent = ventasDiaSnap.size;
     document.getElementById('ultimas-ventas').innerHTML = html;
     
+    // Cargar también inventario y activos
     cargarInventario();
     cargarActivos();
 }
 
+// ==================== UTILIDADES ====================
 async function deleteDoc(coleccion, id) {
-    if (confirm('¿Eliminar este registro?')) {
+    if (confirm('¿Eliminar este registro permanentemente?')) {
         await db.collection(coleccion).doc(id).delete();
         if (coleccion === 'inventario') cargarInventario();
         if (coleccion === 'activos_fijos') cargarActivos();
     }
 }
 
-// ==================== GESTIÓN DE VENTAS (MODIFICAR/ELIMINAR) ====================
-let ventasHoyData = []; // Almacena las ventas del día para gestión
-
-async function cargarVentasHoy() {
-    const hoy = new Date();
-    const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-    const finDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59);
-    
-    try {
-        const snapshot = await db.collection('ventas')
-            .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
-            .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(finDia))
-            .orderBy('fechaPago', 'desc')
-            .get();
-        
-        ventasHoyData = [];
-        let total = 0;
-        
-        snapshot.forEach(doc => {
-            const v = doc.data();
-            ventasHoyData.push({
-                id: doc.id,
-                fecha: v.fechaPago?.toDate().toLocaleString() || '-',
-                mesa: v.mesa || '-',
-                mesero: v.mesero || '-',
-                items: v.items?.map(i => `${i.quantity}x ${i.name}`).join('; ') || '-',
-                total: v.total || 0
-            });
-            total += v.total || 0;
-        });
-        
-        renderVentasHoy(total);
-    } catch (error) {
-        console.error('Error al cargar ventas:', error);
-        document.getElementById('ventas-hoy-lista').innerHTML = '<p style="color:#ff5252;">Error al cargar ventas</p>';
-    }
-}
-
-function renderVentasHoy(total) {
-    const container = document.getElementById('ventas-hoy-lista');
-    
-    if (ventasHoyData.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px;">No hay ventas registradas hoy</p>';
-    } else {
-        let html = '<table><tr><th>Fecha/Hora</th><th>Mesa</th><th>Mesero</th><th>Items</th><th>Total</th><th>Acción</th></tr>';
-        ventasHoyData.forEach((v, index) => {
-            html += `
-                <tr>
-                    <td>${v.fecha}</td>
-                    <td>Mesa ${v.mesa}</td>
-                    <td>${v.mesero}</td>
-                    <td style="font-size:0.8rem;">${v.items}</td>
-                    <td class="amount">$${v.total.toFixed(2)}</td>
-                    <td>
-                        <button class="btn btn-red" style="padding:4px 10px;font-size:0.75rem;" onclick="eliminarVenta('${v.id}', ${index})">🗑️ Eliminar</button>
-                    </td>
-                </tr>`;
-        });
-        html += `<tr style="font-weight:700;font-size:1.1rem;background:var(--surface);">
-            <td colspan="4">TOTAL DEL DÍA</td>
-            <td class="amount">$${total.toFixed(2)}</td>
-            <td></td>
-        </tr></table>`;
-        container.innerHTML = html;
-    }
-    
-    document.getElementById('sum-ventas-hoy-gestion').textContent = `$${total.toFixed(2)}`;
-    document.getElementById('sum-pedidos-hoy-gestion').textContent = ventasHoyData.length;
-}
-
-async function eliminarVenta(id, index) {
-    if (!confirm(`¿Eliminar esta venta?\n\nMesa: ${ventasHoyData[index].mesa}\nTotal: $${ventasHoyData[index].total.toFixed(2)}\n\nEsta acción NO se puede deshacer.`)) {
-        return;
-    }
-    
-    try {
-        await db.collection('ventas').doc(id).delete();
-        ventasHoyData.splice(index, 1);
-        const nuevoTotal = ventasHoyData.reduce((sum, v) => sum + v.total, 0);
-        renderVentasHoy(nuevoTotal);
-        
-        // También actualizar el dashboard si está visible
-        if (document.getElementById('section-dashboard').classList.contains('active')) {
-            cargarDashboard();
-        }
-    } catch (error) {
-        console.error('Error al eliminar:', error);
-        alert('❌ Error al eliminar la venta. Revisa la consola.');
-    }
-}
-
-async function eliminarTodasVentasHoy() {
-    if (ventasHoyData.length === 0) {
-        alert('No hay ventas para eliminar hoy.');
-        return;
-    }
-    
-    if (!confirm(`⚠️ ¿Eliminar TODAS las ventas de hoy?\n\nSe eliminarán ${ventasHoyData.length} registros.\nTotal: $${ventasHoyData.reduce((s,v) => s + v.total, 0).toFixed(2)}\n\nEsta acción NO se puede deshacer.`)) {
-        return;
-    }
-    
-    // Doble confirmación para evitar accidentes
-    if (!confirm('¿ESTÁS COMPLETAMENTE SEGURO? Esta acción es irreversible.')) {
-        return;
-    }
-    
-    try {
-        const batch = db.batch();
-        ventasHoyData.forEach(v => {
-            batch.delete(db.collection('ventas').doc(v.id));
-        });
-        await batch.commit();
-        
-        ventasHoyData = [];
-        renderVentasHoy(0);
-        
-        if (document.getElementById('section-dashboard').classList.contains('active')) {
-            cargarDashboard();
-        }
-        
-        alert('✅ Todas las ventas de hoy han sido eliminadas.');
-    } catch (error) {
-        console.error('Error al eliminar:', error);
-        alert('❌ Error al eliminar las ventas.');
-    }
-}
-
-// Inicializar
+// ==================== INICIALIZACIÓN ====================
 cargarDashboard();
 const ahora = new Date();
 document.getElementById('er-mes').value = ahora.getMonth();

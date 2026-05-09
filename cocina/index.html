@@ -148,31 +148,33 @@ function drop(ev) {
 
 function drag(ev) { ev.dataTransfer.setData('text/plain', ev.currentTarget.dataset.id); }
 
-// ===== CORREGIDO: updateEstado con eliminación visual inmediata =====
+// ===== CORREGIDO: updateEstado con solución REAL =====
 async function updateEstado(pedidoId, nuevoEstado) {
     try {
         if (nuevoEstado === 'cancelado') {
-            if (confirm('¿Estás seguro de cancelar este pedido? Se eliminará del sistema.')) {
-                // 1. Eliminar la tarjeta visualmente AHORA MISMO (no esperar al snapshot)
-                const card = document.querySelector(`[data-id="${pedidoId}"]`);
-                if (card) {
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    card.style.transition = 'all 0.3s ease';
-                    setTimeout(() => card.remove(), 300);
-                }
-                
-                // 2. Eliminar de Firestore
-                await db.collection('pedidos').doc(pedidoId).delete();
-                
-                // 3. Actualizar contadores manualmente (sin esperar al snapshot)
-                actualizarContadoresVisuales();
+            if (!confirm('¿Estás seguro de cancelar este pedido? Se eliminará del sistema.')) {
+                return; // Si cancela, no hacer nada
             }
+            
+            // 1. PRIMERO actualizar a 'cancelado' (esto dispara el onSnapshot)
+            await db.collection('pedidos').doc(pedidoId).update({ estado: 'cancelado' });
+            
+            // 2. El onSnapshot se dispara automáticamente y renderiza de nuevo,
+            //    pero como ahora el estado es 'cancelado', la tarjeta NO se pinta
+            //    porque tenemos: if (pedido.estado === 'pagado' || pedido.estado === 'cancelado') return;
+            
+            // 3. Luego eliminar el documento (opcional, para limpiar la BD)
+            //    Comentamos esta línea si queremos mantener historial
+            // await db.collection('pedidos').doc(pedidoId).delete();
+            
         } else {
             await db.collection('pedidos').doc(pedidoId).update({ estado: nuevoEstado });
         }
         if (nuevoEstado === 'pendiente') playSound();
-    } catch (e) { console.error('Error en updateEstado:', e); }
+    } catch (e) { 
+        console.error('Error en updateEstado:', e); 
+        alert('Error al actualizar el pedido. Revisa la consola.');
+    }
 }
 
 // ===== NUEVO: Actualizar contadores sin esperar al snapshot =====
