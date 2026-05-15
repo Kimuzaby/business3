@@ -40,10 +40,10 @@
         .btn-red { background: #C0392B; color: #fff; }
         .btn-blue { background: #2196F3; color: #fff; }
         .btn:hover { opacity: 0.9; }
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 15px; margin-bottom: 20px; }
-        .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
-        .summary-card .label { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px; }
-        .summary-card .value { font-size: 1.8rem; font-weight: 700; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 15px; margin-bottom: 20px; }
+        .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; text-align: center; }
+        .summary-card .label { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 8px; }
+        .summary-card .value { font-size: 1.6rem; font-weight: 700; }
         .summary-card .value.green { color: var(--green); }
         .summary-card .value.amber { color: var(--amber); }
         .summary-card .value.red { color: #ff5252; }
@@ -61,6 +61,8 @@
 
 <div class="nav-tabs">
     <button class="nav-tab active" onclick="showSection('dashboard')">📈 Dashboard</button>
+    <button class="nav-tab" onclick="showSection('gestion-ventas')">💵 Gestión Ventas</button>
+    <button class="nav-tab" onclick="showSection('costos')">💸 Costos Generales</button>
     <button class="nav-tab" onclick="showSection('inventario')">📦 Inventario</button>
     <button class="nav-tab" onclick="showSection('activos')">🏢 Activos Fijos</button>
     <button class="nav-tab" onclick="showSection('resultados')">📋 Estado de Resultados</button>
@@ -69,41 +71,53 @@
 
 <!-- ==================== DASHBOARD ==================== -->
 <div id="section-dashboard" class="section active">
-    <div class="summary-grid">
+    <div class="summary-grid" id="dashboard-summary">
         <div class="summary-card"><div class="label">Ventas Hoy</div><div class="value green" id="sum-ventas-hoy">$0.00</div></div>
-        <div class="summary-card"><div class="label">Ventas Semana</div><div class="value green" id="sum-ventas-semana">$0.00</div></div>
         <div class="summary-card"><div class="label">Ventas Mes</div><div class="value green" id="sum-ventas-mes">$0.00</div></div>
-        <div class="summary-card"><div class="label">Inventario (Valor)</div><div class="value amber" id="sum-inventario">$0.00</div></div>
+        <div class="summary-card"><div class="label">Costos Mes</div><div class="value red" id="sum-costos-mes">$0.00</div></div>
+        <div class="summary-card"><div class="label">Utilidad Operativa</div><div class="value amber" id="sum-utilidad-op">$0.00</div></div>
+        <div class="summary-card"><div class="label">Inventario</div><div class="value amber" id="sum-inventario">$0.00</div></div>
         <div class="summary-card"><div class="label">Activos Fijos</div><div class="value amber" id="sum-activos">$0.00</div></div>
-        <div class="summary-card"><div class="label">Pedidos Hoy</div><div class="value" id="sum-pedidos-hoy">0</div></div>
     </div>
-    <div class="card"><h2>Últimas 10 Ventas (Histórico)</h2><div id="ultimas-ventas">Cargando...</div></div>
+    <div class="card"><h2>Últimas 10 Ventas</h2><div id="ultimas-ventas">Cargando...</div></div>
+</div>
 
-    <!-- ===== GESTIÓN DE VENTAS DEL DÍA ===== -->
+<!-- ==================== GESTIÓN DE VENTAS (FECHAS) ==================== -->
+<div id="section-gestion-ventas" class="section">
     <div class="card" style="border: 2px solid var(--amber);">
-        <h2 style="display:flex;justify-content:space-between;align-items:center;">
-            <span>🔧 Gestión de Ventas del Día</span>
-            <span style="font-size:0.85rem;color:var(--text-muted);">Modo Pruebas / Admin</span>
-        </h2>
-        <div class="summary-grid" style="margin-bottom:15px;">
-            <div class="summary-card" style="border:1px solid var(--amber);">
-                <div class="label">Ventas Registradas Hoy</div>
-                <div class="value green" id="sum-ventas-hoy-gestion">$0.00</div>
-            </div>
-            <div class="summary-card" style="border:1px solid var(--amber);">
-                <div class="label">Pedidos Hoy</div>
-                <div class="value" id="sum-pedidos-hoy-gestion">0</div>
+        <h2>🔧 Gestión de Ventas (Editar / Eliminar)</h2>
+        <div class="form-row" style="margin-bottom:15px;">
+            <div class="form-group"><label>Desde</label><input type="date" id="gv-desde"></div>
+            <div class="form-group"><label>Hasta</label><input type="date" id="gv-hasta"></div>
+            <div class="form-group" style="align-self:flex-end;">
+                <button class="btn btn-blue" onclick="cargarVentasGestion()">🔄 Cargar Ventas</button>
             </div>
         </div>
-        <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-blue" onclick="cargarVentasHoy()">🔄 Refrescar Lista</button>
-            <button class="btn btn-red" onclick="eliminarTodasVentasHoy()">⚠️ Eliminar TODAS las Ventas de Hoy</button>
+        <div id="gv-lista" style="overflow-x:auto;">
+            <p style="color:var(--text-muted);text-align:center;">Selecciona fechas y haz clic en Cargar Ventas</p>
         </div>
-        <div id="ventas-hoy-lista" style="overflow-x:auto;">
-            <p style="color:var(--text-muted);text-align:center;padding:20px;">Haz clic en "Refrescar Lista" para cargar las ventas...</p>
-        </div>
-        <p style="color:var(--text-muted);font-size:0.75rem;margin-top:10px;">⚠️ Esta sección es para pruebas y ajustes. Las eliminaciones son permanentes.</p>
     </div>
+</div>
+
+<!-- ==================== COSTOS GENERALES ==================== -->
+<div id="section-costos" class="section">
+    <div class="card">
+        <h2>➕ Agregar Costo / Gasto</h2>
+        <form id="form-costo" onsubmit="addCosto(event)">
+            <div class="form-row">
+                <div class="form-group"><label>Descripción</label><input type="text" id="cos-descripcion" required></div>
+                <div class="form-group"><label>Categoría</label><select id="cos-categoria">
+                    <option>Renta</option><option>Servicios</option><option>Nómina</option><option>Mercadeo</option><option>Mantenimiento</option><option>Otros</option>
+                </select></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Monto ($)</label><input type="number" id="cos-monto" step="0.01" required></div>
+                <div class="form-group"><label>Fecha</label><input type="date" id="cos-fecha" required></div>
+            </div>
+            <button type="submit" class="btn btn-amber">Registrar Costo</button>
+        </form>
+    </div>
+    <div class="card"><h2>📋 Costos Registrados (Último Mes)</h2><div id="tabla-costos">Cargando...</div></div>
 </div>
 
 <!-- ==================== INVENTARIO ==================== -->
@@ -112,7 +126,7 @@
         <h2>➕ Agregar Ítem al Inventario</h2>
         <form id="form-inventario" onsubmit="addInventario(event)">
             <div class="form-row">
-                <div class="form-group"><label>Nombre del Producto</label><input type="text" id="inv-nombre" required></div>
+                <div class="form-group"><label>Nombre</label><input type="text" id="inv-nombre" required></div>
                 <div class="form-group"><label>Categoría</label><select id="inv-categoria"><option>Insumos</option><option>Bebidas</option><option>Carnes</option><option>Lácteos</option><option>Verduras</option><option>Otros</option></select></div>
             </div>
             <div class="form-row">
@@ -132,7 +146,7 @@
         <h2>➕ Registrar Activo Fijo</h2>
         <form id="form-activo" onsubmit="addActivo(event)">
             <div class="form-row">
-                <div class="form-group"><label>Nombre del Activo</label><input type="text" id="act-nombre" required></div>
+                <div class="form-group"><label>Nombre</label><input type="text" id="act-nombre" required></div>
                 <div class="form-group"><label>Valor de Compra ($)</label><input type="number" id="act-valor" step="0.01" required></div>
             </div>
             <div class="form-row">
@@ -170,23 +184,13 @@
             <button class="report-type-btn" onclick="setReportType('personalizado', this)">🔍 Personalizado</button>
         </div>
         <div class="form-row" style="margin-bottom:15px;" id="report-filters">
-            <div class="form-group" id="filter-fecha-unica" style="display:none;">
-                <label>Fecha</label><input type="date" id="rep-fecha" onchange="generarReporte()">
-            </div>
-            <div class="form-group" id="filter-mes" style="display:none;">
-                <label>Mes</label><select id="rep-mes" onchange="generarReporte()">
-                    <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
-                </select>
-            </div>
-            <div class="form-group" id="filter-anio" style="display:none;">
-                <label>Año</label><input type="number" id="rep-anio" value="2026" onchange="generarReporte()">
-            </div>
-            <div class="form-group" id="filter-desde" style="display:none;">
-                <label>Desde</label><input type="date" id="rep-desde" onchange="generarReporte()">
-            </div>
-            <div class="form-group" id="filter-hasta" style="display:none;">
-                <label>Hasta</label><input type="date" id="rep-hasta" onchange="generarReporte()">
-            </div>
+            <div class="form-group" id="filter-fecha-unica" style="display:none;"><label>Fecha</label><input type="date" id="rep-fecha" onchange="generarReporte()"></div>
+            <div class="form-group" id="filter-mes" style="display:none;"><label>Mes</label><select id="rep-mes" onchange="generarReporte()">
+                <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
+            </select></div>
+            <div class="form-group" id="filter-anio" style="display:none;"><label>Año</label><input type="number" id="rep-anio" value="2026" onchange="generarReporte()"></div>
+            <div class="form-group" id="filter-desde" style="display:none;"><label>Desde</label><input type="date" id="rep-desde" onchange="generarReporte()"></div>
+            <div class="form-group" id="filter-hasta" style="display:none;"><label>Hasta</label><input type="date" id="rep-hasta" onchange="generarReporte()"></div>
         </div>
         <div style="margin-bottom:15px;">
             <button class="btn btn-green" onclick="exportarCSV()">📥 Exportar a Excel (CSV)</button>
@@ -200,7 +204,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDKmVDbSZcC6JwRG2eJkzPjf42aFVYdWg4",
   authDomain: "hill-n-grill.firebaseapp.com",
@@ -213,9 +216,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Variables globales
 let reporteActual = { tipo: 'diario', datos: [] };
-let ventasHoyData = [];
+let ventasGestionData = []; // Para la sección de gestión
 
 // ==================== NAVEGACIÓN ====================
 function showSection(name) {
@@ -224,6 +226,160 @@ function showSection(name) {
     document.getElementById('section-' + name).classList.add('active');
     event.target.classList.add('active');
     if (name === 'dashboard') cargarDashboard();
+    if (name === 'costos') cargarCostos();
+}
+
+// ==================== DASHBOARD ====================
+async function cargarDashboard() {
+    const hoy = new Date();
+    const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    const finDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59);
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59);
+
+    // Ventas día
+    const vDiaSnap = await db.collection('ventas')
+        .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
+        .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(finDia))
+        .get();
+    let ventasDia = 0; vDiaSnap.forEach(d => ventasDia += d.data().total || 0);
+
+    // Ventas mes
+    const vMesSnap = await db.collection('ventas')
+        .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioMes))
+        .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(finMes))
+        .get();
+    let ventasMes = 0; vMesSnap.forEach(d => ventasMes += d.data().total || 0);
+
+    // Costos mes
+    const cMesSnap = await db.collection('costos')
+        .where('fecha', '>=', inicioMes.toISOString().split('T')[0])
+        .where('fecha', '<=', finMes.toISOString().split('T')[0])
+        .get();
+    let costosMes = 0; cMesSnap.forEach(d => costosMes += d.data().monto || 0);
+
+    const utilidadOperativa = ventasMes - costosMes;
+
+    document.getElementById('sum-ventas-hoy').textContent = `$${ventasDia.toFixed(2)}`;
+    document.getElementById('sum-ventas-mes').textContent = `$${ventasMes.toFixed(2)}`;
+    document.getElementById('sum-costos-mes').textContent = `$${costosMes.toFixed(2)}`;
+    document.getElementById('sum-utilidad-op').textContent = `$${utilidadOperativa.toFixed(2)}`;
+
+    // Últimas 10 ventas
+    const ultimasSnap = await db.collection('ventas').orderBy('fechaPago', 'desc').limit(10).get();
+    let html = '<table><tr><th>Fecha</th><th>Mesa</th><th>Items</th><th>Total</th></tr>';
+    ultimasSnap.forEach(d => {
+        const v = d.data();
+        const items = v.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') || '-';
+        html += `<tr><td>${v.fechaPago?.toDate().toLocaleString() || '-'}</td><td>Mesa ${v.mesa}</td><td style="font-size:0.8rem;">${items}</td><td class="amount">$${v.total?.toFixed(2)}</td></tr>`;
+    });
+    html += '</table>';
+    document.getElementById('ultimas-ventas').innerHTML = html;
+
+    // Inventario y activos
+    cargarInventario();
+    cargarActivos();
+}
+
+// ==================== GESTIÓN DE VENTAS (con fechas) ====================
+async function cargarVentasGestion() {
+    const desde = document.getElementById('gv-desde').value;
+    const hasta = document.getElementById('gv-hasta').value;
+    if (!desde || !hasta) { alert('Selecciona ambas fechas'); return; }
+    const inicio = new Date(desde);
+    const fin = new Date(hasta + 'T23:59:59');
+    
+    const snap = await db.collection('ventas')
+        .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicio))
+        .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(fin))
+        .orderBy('fechaPago', 'desc')
+        .get();
+    
+    ventasGestionData = [];
+    let total = 0;
+    snap.forEach(doc => {
+        const v = doc.data();
+        ventasGestionData.push({ id: doc.id, ...v, fechaStr: v.fechaPago?.toDate().toLocaleString() || '-' });
+        total += v.total || 0;
+    });
+    
+    let html = '<table><tr><th>Fecha</th><th>Mesa</th><th>Items</th><th>Total</th><th>Acciones</th></tr>';
+    ventasGestionData.forEach((v, i) => {
+        const items = v.items?.map(i => `${i.quantity}x ${i.name}`).join('; ') || '-';
+        html += `<tr>
+            <td>${v.fechaStr}</td><td>Mesa ${v.mesa || '-'}</td><td style="font-size:0.8rem;">${items}</td>
+            <td class="amount">$${v.total?.toFixed(2)}</td>
+            <td style="display:flex; gap:5px;">
+                <button class="btn btn-blue" style="padding:4px 10px;font-size:0.7rem;" onclick="editarVenta('${v.id}', ${i})">✏️ Editar</button>
+                <button class="btn btn-red" style="padding:4px 10px;font-size:0.7rem;" onclick="eliminarVentaGestion('${v.id}', ${i})">🗑️</button>
+            </td>
+        </tr>`;
+    });
+    html += `<tr style="font-weight:700;font-size:1.1rem;"><td colspan="3">TOTAL</td><td class="amount">$${total.toFixed(2)}</td><td></td></tr></table>`;
+    document.getElementById('gv-lista').innerHTML = html;
+}
+
+async function editarVenta(id, index) {
+    const venta = ventasGestionData[index];
+    const nuevoTotal = prompt('Nuevo total ($)', venta.total);
+    if (nuevoTotal === null) return;
+    const totalFloat = parseFloat(nuevoTotal);
+    if (isNaN(totalFloat) || totalFloat < 0) { alert('Monto inválido'); return; }
+    try {
+        await db.collection('ventas').doc(id).update({ total: totalFloat });
+        alert('Venta actualizada');
+        cargarVentasGestion();
+        if (document.getElementById('section-dashboard').classList.contains('active')) cargarDashboard();
+    } catch (e) { console.error(e); alert('Error al actualizar'); }
+}
+
+async function eliminarVentaGestion(id, index) {
+    if (!confirm(`¿Eliminar esta venta?\nTotal: $${ventasGestionData[index].total?.toFixed(2)}`)) return;
+    try {
+        await db.collection('ventas').doc(id).delete();
+        ventasGestionData.splice(index, 1);
+        cargarVentasGestion();
+        if (document.getElementById('section-dashboard').classList.contains('active')) cargarDashboard();
+    } catch (e) { console.error(e); alert('Error al eliminar'); }
+}
+
+// ==================== COSTOS GENERALES ====================
+async function addCosto(e) {
+    e.preventDefault();
+    const costo = {
+        descripcion: document.getElementById('cos-descripcion').value,
+        categoria: document.getElementById('cos-categoria').value,
+        monto: parseFloat(document.getElementById('cos-monto').value),
+        fecha: document.getElementById('cos-fecha').value // formato YYYY-MM-DD
+    };
+    await db.collection('costos').add(costo);
+    document.getElementById('form-costo').reset();
+    cargarCostos();
+    alert('✅ Costo registrado');
+}
+
+async function cargarCostos() {
+    const hoy = new Date();
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
+    const finMes = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).toISOString().split('T')[0];
+
+    const snap = await db.collection('costos')
+        .where('fecha', '>=', inicioMes)
+        .where('fecha', '<=', finMes)
+        .get();
+    let total = 0;
+    let html = '<table><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th><th>Acción</th></tr>';
+    snap.forEach(doc => {
+        const d = doc.data();
+        total += d.monto || 0;
+        html += `<tr>
+            <td>${d.fecha}</td><td>${d.descripcion}</td><td>${d.categoria}</td>
+            <td class="amount">$${d.monto?.toFixed(2)}</td>
+            <td><button class="btn btn-red" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteDoc('costos','${doc.id}')">🗑️</button></td>
+        </tr>`;
+    });
+    html += `<tr style="font-weight:700;"><td colspan="3">TOTAL COSTOS DEL MES</td><td class="amount">$${total.toFixed(2)}</td><td></td></tr></table>`;
+    document.getElementById('tabla-costos').innerHTML = html;
 }
 
 // ==================== INVENTARIO ====================
@@ -241,14 +397,14 @@ async function addInventario(e) {
     await db.collection('inventario').add(item);
     document.getElementById('form-inventario').reset();
     cargarInventario();
-    alert('✅ Ítem agregado al inventario');
+    alert('✅ Ítem agregado');
 }
 
 async function cargarInventario() {
-    const snapshot = await db.collection('inventario').get();
+    const snap = await db.collection('inventario').get();
     let total = 0;
     let html = '<table><tr><th>Producto</th><th>Categoría</th><th>Cantidad</th><th>Unidad</th><th>Costo Unit.</th><th>Costo Total</th><th>Acción</th></tr>';
-    snapshot.forEach(doc => {
+    snap.forEach(doc => {
         const d = doc.data();
         total += d.costoTotal || 0;
         html += `<tr>
@@ -257,7 +413,7 @@ async function cargarInventario() {
             <td><button class="btn btn-red" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteDoc('inventario','${doc.id}')">🗑️</button></td>
         </tr>`;
     });
-    html += `<tr style="font-weight:700;"><td colspan="5">VALOR TOTAL DEL INVENTARIO</td><td class="amount">$${total.toFixed(2)}</td><td></td></tr></table>`;
+    html += `<tr style="font-weight:700;"><td colspan="5">VALOR TOTAL INVENTARIO</td><td class="amount">$${total.toFixed(2)}</td><td></td></tr></table>`;
     document.getElementById('tabla-inventario').innerHTML = html;
     document.getElementById('sum-inventario').textContent = `$${total.toFixed(2)}`;
 }
@@ -279,14 +435,14 @@ async function addActivo(e) {
     await db.collection('activos_fijos').add(activo);
     document.getElementById('form-activo').reset();
     cargarActivos();
-    alert('✅ Activo fijo registrado');
+    alert('✅ Activo registrado');
 }
 
 async function cargarActivos() {
-    const snapshot = await db.collection('activos_fijos').get();
+    const snap = await db.collection('activos_fijos').get();
     let total = 0;
-    let html = '<table><tr><th>Activo</th><th>Valor Compra</th><th>Fecha Compra</th><th>Vida Útil</th><th>Deprec. Mensual</th><th>Valor Actual</th><th>Acción</th></tr>';
-    snapshot.forEach(doc => {
+    let html = '<table><tr><th>Activo</th><th>Valor Compra</th><th>Fecha</th><th>Vida Útil</th><th>Deprec. Mensual</th><th>Valor Actual</th><th>Acción</th></tr>';
+    snap.forEach(doc => {
         const d = doc.data();
         total += d.valorActual || 0;
         html += `<tr>
@@ -301,164 +457,49 @@ async function cargarActivos() {
     document.getElementById('sum-activos').textContent = `$${total.toFixed(2)}`;
 }
 
-// ==================== ESTADO DE RESULTADOS ====================
+// ==================== ESTADO DE RESULTADOS (con costos) ====================
 async function calcularEstadoResultados() {
     const mes = parseInt(document.getElementById('er-mes').value);
     const anio = parseInt(document.getElementById('er-anio').value);
     const inicio = new Date(anio, mes, 1);
     const fin = new Date(anio, mes + 1, 0, 23, 59, 59);
-    
-    const ventasSnap = await db.collection('ventas')
+    const inicioStr = inicio.toISOString().split('T')[0];
+    const finStr = fin.toISOString().split('T')[0];
+
+    const vSnap = await db.collection('ventas')
         .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicio))
         .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(fin))
         .get();
-    let totalVentas = 0;
-    ventasSnap.forEach(d => totalVentas += d.data().total || 0);
-    
+    let ventas = 0; vSnap.forEach(d => ventas += d.data().total || 0);
+
     const invSnap = await db.collection('inventario').get();
-    let costoInventario = 0;
-    invSnap.forEach(d => costoInventario += d.data().costoTotal || 0);
-    
+    let inventario = 0; invSnap.forEach(d => inventario += d.data().costoTotal || 0);
+
     const actSnap = await db.collection('activos_fijos').get();
-    let depreciacionTotal = 0;
-    actSnap.forEach(d => depreciacionTotal += d.data().depreciacionMensual || 0);
-    
-    const utilidadBruta = totalVentas - costoInventario;
-    const utilidadNeta = utilidadBruta - depreciacionTotal;
+    let depreciacion = 0; actSnap.forEach(d => depreciacion += d.data().depreciacionMensual || 0);
+
+    const cSnap = await db.collection('costos')
+        .where('fecha', '>=', inicioStr)
+        .where('fecha', '<=', finStr)
+        .get();
+    let costos = 0; cSnap.forEach(d => costos += d.data().monto || 0);
+
+    const utilidadBruta = ventas - inventario;
+    const utilidadOperativa = utilidadBruta - costos;
+    const utilidadNeta = utilidadOperativa - depreciacion;
     const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    
+
     document.getElementById('tabla-resultados').innerHTML = `
         <table>
             <tr><td colspan="2" style="text-align:center;font-weight:700;font-size:1.1rem;">${meses[mes]} ${anio}</td></tr>
-            <tr><td>Ingresos por Ventas</td><td class="amount">$${totalVentas.toFixed(2)}</td></tr>
-            <tr><td>Costo de Ventas (Inventario)</td><td class="amount negative">-$${costoInventario.toFixed(2)}</td></tr>
+            <tr><td>Ingresos por Ventas</td><td class="amount">$${ventas.toFixed(2)}</td></tr>
+            <tr><td>Costo de Ventas (Inventario)</td><td class="amount negative">-$${inventario.toFixed(2)}</td></tr>
             <tr style="font-weight:700;border-top:2px solid var(--border);"><td>UTILIDAD BRUTA</td><td class="amount">$${utilidadBruta.toFixed(2)}</td></tr>
-            <tr><td>Gastos por Depreciación</td><td class="amount negative">-$${depreciacionTotal.toFixed(2)}</td></tr>
+            <tr><td>Costos Generales</td><td class="amount negative">-$${costos.toFixed(2)}</td></tr>
+            <tr style="font-weight:700;border-top:2px solid var(--border);"><td>UTILIDAD OPERATIVA</td><td class="amount">$${utilidadOperativa.toFixed(2)}</td></tr>
+            <tr><td>Gastos por Depreciación</td><td class="amount negative">-$${depreciacion.toFixed(2)}</td></tr>
             <tr style="font-weight:700;border-top:2px solid var(--amber);font-size:1.1rem;"><td>UTILIDAD NETA</td><td class="amount">$${utilidadNeta.toFixed(2)}</td></tr>
         </table>`;
-}
-
-// ==================== GESTIÓN DE VENTAS DEL DÍA ====================
-async function cargarVentasHoy() {
-    const hoy = new Date();
-    const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-    const finDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59);
-    
-    try {
-        const snapshot = await db.collection('ventas')
-            .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
-            .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(finDia))
-            .orderBy('fechaPago', 'desc')
-            .get();
-        
-        ventasHoyData = [];
-        let total = 0;
-        
-        snapshot.forEach(doc => {
-            const v = doc.data();
-            ventasHoyData.push({
-                id: doc.id,
-                fecha: v.fechaPago?.toDate().toLocaleString() || '-',
-                mesa: v.mesa || '-',
-                mesero: v.mesero || '-',
-                items: v.items?.map(i => `${i.quantity}x ${i.name}`).join('; ') || '-',
-                total: v.total || 0
-            });
-            total += v.total || 0;
-        });
-        
-        renderVentasHoy(total);
-    } catch (error) {
-        console.error('Error al cargar ventas:', error);
-        document.getElementById('ventas-hoy-lista').innerHTML = '<p style="color:#ff5252;">Error al cargar ventas. Revisa la consola.</p>';
-    }
-}
-
-function renderVentasHoy(total) {
-    const container = document.getElementById('ventas-hoy-lista');
-    
-    if (ventasHoyData.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px;">No hay ventas registradas hoy</p>';
-    } else {
-        let html = '<table><tr><th>Fecha/Hora</th><th>Mesa</th><th>Mesero</th><th>Items</th><th>Total</th><th>Acción</th></tr>';
-        ventasHoyData.forEach((v, index) => {
-            html += `
-                <tr>
-                    <td>${v.fecha}</td>
-                    <td>Mesa ${v.mesa}</td>
-                    <td>${v.mesero}</td>
-                    <td style="font-size:0.8rem;">${v.items}</td>
-                    <td class="amount">$${v.total.toFixed(2)}</td>
-                    <td>
-                        <button class="btn btn-red" style="padding:4px 10px;font-size:0.75rem;" onclick="eliminarVenta('${v.id}', ${index})">🗑️ Eliminar</button>
-                    </td>
-                </tr>`;
-        });
-        html += `<tr style="font-weight:700;font-size:1.1rem;background:var(--surface);">
-            <td colspan="4">TOTAL DEL DÍA</td>
-            <td class="amount">$${total.toFixed(2)}</td>
-            <td></td>
-        </tr></table>`;
-        container.innerHTML = html;
-    }
-    
-    document.getElementById('sum-ventas-hoy-gestion').textContent = `$${total.toFixed(2)}`;
-    document.getElementById('sum-pedidos-hoy-gestion').textContent = ventasHoyData.length;
-}
-
-async function eliminarVenta(id, index) {
-    if (!confirm(`¿Eliminar esta venta?\n\nMesa: ${ventasHoyData[index].mesa}\nTotal: $${ventasHoyData[index].total.toFixed(2)}\n\nEsta acción NO se puede deshacer.`)) {
-        return;
-    }
-    
-    try {
-        await db.collection('ventas').doc(id).delete();
-        ventasHoyData.splice(index, 1);
-        const nuevoTotal = ventasHoyData.reduce((sum, v) => sum + v.total, 0);
-        renderVentasHoy(nuevoTotal);
-        
-        if (document.getElementById('section-dashboard').classList.contains('active')) {
-            cargarDashboard();
-        }
-    } catch (error) {
-        console.error('Error al eliminar:', error);
-        alert('❌ Error al eliminar la venta.');
-    }
-}
-
-async function eliminarTodasVentasHoy() {
-    if (ventasHoyData.length === 0) {
-        alert('No hay ventas para eliminar hoy. Haz clic en "Refrescar Lista" primero.');
-        return;
-    }
-    
-    if (!confirm(`⚠️ ¿Eliminar TODAS las ventas de hoy?\n\nSe eliminarán ${ventasHoyData.length} registros.\nTotal: $${ventasHoyData.reduce((s,v) => s + v.total, 0).toFixed(2)}\n\nEsta acción NO se puede deshacer.`)) {
-        return;
-    }
-    
-    if (!confirm('¿ESTÁS COMPLETAMENTE SEGURO? Esta acción es irreversible.')) {
-        return;
-    }
-    
-    try {
-        const batch = db.batch();
-        ventasHoyData.forEach(v => {
-            batch.delete(db.collection('ventas').doc(v.id));
-        });
-        await batch.commit();
-        
-        ventasHoyData = [];
-        renderVentasHoy(0);
-        
-        if (document.getElementById('section-dashboard').classList.contains('active')) {
-            cargarDashboard();
-        }
-        
-        alert('✅ Todas las ventas de hoy han sido eliminadas.');
-    } catch (error) {
-        console.error('Error al eliminar:', error);
-        alert('❌ Error al eliminar las ventas.');
-    }
 }
 
 // ==================== REPORTES Y EXPORTACIÓN ====================
@@ -466,20 +507,17 @@ function setReportType(tipo, btn) {
     reporteActual.tipo = tipo;
     document.querySelectorAll('.report-type-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
     document.getElementById('filter-fecha-unica').style.display = (tipo === 'diario') ? 'block' : 'none';
     document.getElementById('filter-mes').style.display = (tipo === 'mensual') ? 'block' : 'none';
     document.getElementById('filter-anio').style.display = (tipo === 'semanal' || tipo === 'mensual') ? 'block' : 'none';
     document.getElementById('filter-desde').style.display = (tipo === 'personalizado') ? 'block' : 'none';
     document.getElementById('filter-hasta').style.display = (tipo === 'personalizado') ? 'block' : 'none';
-    
     const hoy = new Date();
     document.getElementById('rep-fecha').valueAsDate = hoy;
     document.getElementById('rep-mes').value = hoy.getMonth();
     document.getElementById('rep-anio').value = hoy.getFullYear();
     document.getElementById('rep-desde').valueAsDate = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
     document.getElementById('rep-hasta').valueAsDate = hoy;
-    
     generarReporte();
 }
 
@@ -487,13 +525,11 @@ async function generarReporte() {
     const tipo = reporteActual.tipo;
     let inicio, fin;
     const hoy = new Date();
-    
     if (tipo === 'diario') {
         const fecha = document.getElementById('rep-fecha').valueAsDate || hoy;
         inicio = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
         fin = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), 23, 59, 59);
     } else if (tipo === 'semanal') {
-        const anio = parseInt(document.getElementById('rep-anio').value) || hoy.getFullYear();
         inicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - hoy.getDay());
         fin = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + 6, 23, 59, 59);
     } else if (tipo === 'mensual') {
@@ -507,7 +543,7 @@ async function generarReporte() {
         fin.setHours(23, 59, 59);
     }
     
-    const snapshot = await db.collection('ventas')
+    const snap = await db.collection('ventas')
         .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicio))
         .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(fin))
         .orderBy('fechaPago', 'desc')
@@ -515,16 +551,13 @@ async function generarReporte() {
     
     reporteActual.datos = [];
     let total = 0;
-    
-    snapshot.forEach(doc => {
+    snap.forEach(doc => {
         const v = doc.data();
         reporteActual.datos.push({
-            id: doc.id,
             fecha: v.fechaPago?.toDate().toLocaleString() || '-',
-            mesa: v.mesa || '-',
-            mesero: v.mesero || '-',
+            mesa: v.mesa,
             items: v.items?.map(i => `${i.quantity}x ${i.name}`).join('; ') || '-',
-            total: v.total || 0
+            total: v.total
         });
         total += v.total || 0;
     });
@@ -546,82 +579,26 @@ async function generarReporte() {
 }
 
 function exportarCSV() {
-    if (reporteActual.datos.length === 0) { alert('No hay datos para exportar'); return; }
-    
-    let csv = 'Fecha,Mesa,Mesero,Items,Total\n';
+    if (reporteActual.datos.length === 0) { alert('No hay datos'); return; }
+    let csv = 'Fecha,Mesa,Items,Total\n';
     reporteActual.datos.forEach(d => {
-        csv += `"${d.fecha}","Mesa ${d.mesa}","${d.mesero}","${d.items.replace(/"/g,'""')}",$${d.total.toFixed(2)}\n`;
+        csv += `"${d.fecha}","Mesa ${d.mesa}","${d.items.replace(/"/g,'""')}",$${d.total.toFixed(2)}\n`;
     });
-    
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
+    a.href = URL.createObjectURL(blob);
     a.download = `Reporte_HillNGrill_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
 }
 
 function imprimirReporte() {
     const contenido = document.getElementById('reporte-resumen').innerHTML + document.getElementById('reporte-contenido').innerHTML;
     const ventana = window.open('', '', 'width=900,height=700');
-    ventana.document.write('<html><head><title>Reporte Hill N Grill</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{padding:8px;border:1px solid #ddd;text-align:left;}th{background:#4A7C3F;color:white;}.amount{color:#D4A017;font-weight:700;}</style></head><body>');
-    ventana.document.write('<h1>🏔️ Hill N Grill - Reporte</h1>');
-    ventana.document.write(contenido);
+    ventana.document.write('<html><head><title>Reporte</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{padding:8px;border:1px solid #ddd;}th{background:#4A7C3F;color:white;}.amount{color:#D4A017;font-weight:700;}</style></head><body>');
+    ventana.document.write('<h1>🏔️ Hill N Grill - Reporte</h1>' + contenido);
     ventana.document.write('</body></html>');
     ventana.document.close();
     ventana.print();
-}
-
-// ==================== DASHBOARD ====================
-async function cargarDashboard() {
-    const hoy = new Date();
-    const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-    const finDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59);
-    const inicioSemana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - hoy.getDay());
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    
-    // Ventas del día
-    const ventasDiaSnap = await db.collection('ventas')
-        .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
-        .where('fechaPago', '<=', firebase.firestore.Timestamp.fromDate(finDia))
-        .get();
-    let ventasDia = 0;
-    ventasDiaSnap.forEach(d => ventasDia += d.data().total || 0);
-    
-    // Ventas de la semana
-    const ventasSemanaSnap = await db.collection('ventas')
-        .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioSemana))
-        .get();
-    let ventasSemana = 0;
-    ventasSemanaSnap.forEach(d => ventasSemana += d.data().total || 0);
-    
-    // Ventas del mes
-    const ventasMesSnap = await db.collection('ventas')
-        .where('fechaPago', '>=', firebase.firestore.Timestamp.fromDate(inicioMes))
-        .get();
-    let ventasMes = 0;
-    ventasMesSnap.forEach(d => ventasMes += d.data().total || 0);
-    
-    // Últimas 10 ventas
-    const ultimasSnap = await db.collection('ventas').orderBy('fechaPago', 'desc').limit(10).get();
-    let html = '<table><tr><th>Fecha</th><th>Mesa</th><th>Items</th><th>Total</th></tr>';
-    ultimasSnap.forEach(d => {
-        const v = d.data();
-        const items = v.items?.map(i => `${i.quantity}x ${i.name}`).join(', ') || '-';
-        html += `<tr><td>${v.fechaPago?.toDate().toLocaleString() || '-'}</td><td>Mesa ${v.mesa}</td><td style="font-size:0.8rem;">${items}</td><td class="amount">$${v.total?.toFixed(2)}</td></tr>`;
-    });
-    html += '</table>';
-    
-    document.getElementById('sum-ventas-hoy').textContent = `$${ventasDia.toFixed(2)}`;
-    document.getElementById('sum-ventas-semana').textContent = `$${ventasSemana.toFixed(2)}`;
-    document.getElementById('sum-ventas-mes').textContent = `$${ventasMes.toFixed(2)}`;
-    document.getElementById('sum-pedidos-hoy').textContent = ventasDiaSnap.size;
-    document.getElementById('ultimas-ventas').innerHTML = html;
-    
-    // Cargar también inventario y activos
-    cargarInventario();
-    cargarActivos();
 }
 
 // ==================== UTILIDADES ====================
@@ -630,6 +607,7 @@ async function deleteDoc(coleccion, id) {
         await db.collection(coleccion).doc(id).delete();
         if (coleccion === 'inventario') cargarInventario();
         if (coleccion === 'activos_fijos') cargarActivos();
+        if (coleccion === 'costos') cargarCostos();
     }
 }
 
@@ -639,6 +617,8 @@ const ahora = new Date();
 document.getElementById('er-mes').value = ahora.getMonth();
 document.getElementById('rep-mes').value = ahora.getMonth();
 document.getElementById('rep-fecha').valueAsDate = ahora;
+document.getElementById('gv-desde').valueAsDate = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+document.getElementById('gv-hasta').valueAsDate = ahora;
 setReportType('diario', document.querySelector('.report-type-btn.active'));
 </script>
 </body>
